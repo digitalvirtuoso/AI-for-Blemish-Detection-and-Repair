@@ -41,7 +41,8 @@ class oldMold(object):
         dmg_num = len(total_layers)
         damage = ('DC' + str(rand.randint(1, dmg_num)) + '.png')
         dmg_name = self.path_filter / damage
-        top_layer = Image.open(dmg_name)
+        angle = 90 * rand.randint(0, 3)
+        top_layer = Image.open(dmg_name).rotate(angle)
         bottom_layer = img
 
         # Save file into Damage Subset

@@ -1,1 +1,1 @@
-All of your project code will go here
+All code files reside here
