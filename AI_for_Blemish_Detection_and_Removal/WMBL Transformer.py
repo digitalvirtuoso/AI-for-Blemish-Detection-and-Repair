@@ -4,7 +4,7 @@ from fastai.callbacks import *
 from PIL import Image, ImageDraw, ImageFont
 import random as rand
 from pathlib import Path
-
+# Inspired from: https://tinyurl.com/y59gyjc7
 
 class oldMold(object):
 
@@ -34,7 +34,6 @@ class oldMold(object):
         img = PIL.Image.open(filename)
         targ_sz = resize_to(img, 300, use_min=True)
         img = img.resize(targ_sz, resample=PIL.Image.BICUBIC)
-        w, h = img.size
 
         # Randomly choose a Damage Augment and Overlay
         total_layers = os.listdir(self.path_filter)
