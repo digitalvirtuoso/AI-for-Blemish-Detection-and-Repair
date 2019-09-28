@@ -1,46 +1,13 @@
-# Insight_Project_Framework
-Framework for machine learning projects at Insight Data Science.
+# AI for blemish detection and repair
+ML modeling for cleaning old photos without masking
 
 ## Motivation for this project format:
-- **Insight_Project_Framework** : Put all source code for production within structured directory
-- **tests** : Put all source code for testing in an easy to find location
+- **AI_for_Blemish_Detection_and_Removal** : All source code for production within structured directory
+- **tests** : All source code for testing
 - **configs** : Enable modification of all preset variables within single directory (consisting of one or many config files for separate tasks)
-- **data** : Include example a small amount of data in the Github repository so tests can be run to validate installation
-- **build** : Include scripts that automate building of a standalone environment
+- **data** : Small amount of data tests can be run to validate installation
+- **build** : Scripts that automate building of a standalone environment
 - **static** : Any images or content to include in the README or web framework if part of the pipeline
-
-## Setup
-Clone repository and update python path
-```
-repo_name=Insight_Project_Framework # URL of your new repository
-username=mrubash1 # Username for your personal github account
-git clone https://github.com/$username/$repo_name
-cd $repo_name
-echo "export $repo_name=${PWD}" >> ~/.bash_profile
-echo "export PYTHONPATH=$repo_name/src:${PYTHONPATH}" >> ~/.bash_profile
-source ~/.bash_profile
-```
-Create new development branch and switch onto it
-```
-branch_name=dev-readme_requisites-20180905 # Name of development branch, of the form 'dev-feature_name-date_of_creation'}}
-git checkout -b $branch_name
-```
-
-## Initial Commit
-Lets start with a blank slate: remove `.git` and re initialize the repo
-```
-cd $repo_name
-rm -rf .git   
-git init   
-git status
-```  
-You'll see a list of file, these are files that git doesn't recognize. At this point, feel free to change the directory names to match your project. i.e. change the parent directory Insight_Project_Framework and the project directory Insight_Project_Framework:
-Now commit these:
-```
-git add .
-git commit -m "Initial commit"
-git push origin $branch_name
-```
 
 ## Requisites
 
@@ -96,14 +63,7 @@ pip install -r requiremnts
 ```
 
 ## Build Model
-- Include instructions of how to build the model
-- This can be done either locally or on the cloud
-```
-# Example
-
-# Step 1
-# Step 2
-```
+- Instructions of how to build the model
 
 ## Serve Model
 - Include instructions of how to set up a REST or RPC endpoint
