@@ -1,7 +1,7 @@
 import fastai
 from fastai.vision import *
 from fastai.callbacks import *
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageOps
 import random as rand
 from pathlib import Path
 # Inspired from: https://tinyurl.com/y59gyjc7
@@ -41,6 +41,8 @@ class oldMold(object):
         damage = ('DC' + str(rand.randint(1, dmg_num)) + '.png')
         dmg_name = self.path_filter / damage
         angle = 90 * rand.randint(0, 3)
+        if rand.randint(0,1) == 1:
+          top_layer = ImageOps.mirror(top_layer)
         top_layer = Image.open(dmg_name).rotate(angle)
         bottom_layer = img
 

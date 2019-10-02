@@ -55,10 +55,10 @@ def create_critic_learner(data, metrics):
 
 
 # ASSIGNING PATHS - CREATING DIRs
-path = Path('/data/raw/')
-path_hr = path / 'images'
-path_lr = path / 'damaged'
-path_filter = path / 'DMGOL'
+path = Path('/data/')
+path_hr = path / 'raw'
+path_lr = path / 'processed'
+path_filter = path / 'spot_dmg'
 
 # Creating image list and processing images
 itemlist = ImageList.from_folder(path_hr)
@@ -88,8 +88,6 @@ path_gen.mkdir(exist_ok=True)
 
 # Saving Generator Predictions
 save_preds(data_gen.fix_dl)
-
-# Garbage Collection
 model_gen = None
 gc.collect()
 
@@ -100,8 +98,6 @@ model_critic = create_critic_learner(data_crit, accuracy_thresh_expand)
 # Pretraining and Saving Critic
 model_critic.fit_one_cycle(6, 1e-3)
 model_critic.save('critic-pre1')
-
-# GARBAGE COLLECTION
 model_crit = None
 model_gen = None
 gc.collect()
