@@ -2,122 +2,80 @@ import fastai
 from fastai.vision import *
 from fastai.callbacks import *
 from fastai.vision.gan import *
-from PIL import Image, ImageDraw, ImageFont
-import matplotlib.pyplot as plt
 import os
-import random as rand
 from pathlib import Path
-from wmtransformer import oldMold
+from wmtransformer import *
+from model_utils import *
 
-def checkpt(ep, lr, model, interval, mod_name='Model_'):
-    cpi = round(ep / interval)
-    for z in range(cpi):
-        model.fit(interval, lr)
-        model.save(mod_name + str(z+1))
-
-# The Following functions (and model is inspired) from: https://tinyurl.com/yybfbbg4
-def get_data(bs, size):
-    data = (src.label_from_func(lambda x: path_hr / x.name)
-            .transform(get_transforms(max_zoom=2.), size=size, tfm_y=True)
-            .databunch(bs=bs).normalize(imagenet_stats, do_y=True))
-    data.c = 3
-    return data
-
-def get_crit_data(classes, bs, size):
-    src = ImageList.from_folder(path, include=classes).split_by_rand_pct(0.1, seed=42)
-    ll = src.label_from_folder(classes=classes)
-    data = (ll.transform(get_transforms(max_zoom=2.), size=size)
-            .databunch(bs=bs).normalize(imagenet_stats))
-    data.c = 3
-    return data
-
-def save_preds(dl):
-    i = 0
-    names = dl.dataset.items
-    for b in dl:
-        preds = model_gen.pred_batch(batch=b, reconstruct=True)
-        for o in preds:
-            o.save(path_gen / names[i].name)
-            i += 1
-
-def create_gen_learner(pretrain=True):
-    # Loading resnet34 into unet to pretrain
-    if pretrain is True:
-        arch = models.resnet34
-        #arch()
-    return unet_learner(data_gen, arch, wd=1e-3, blur=True, norm_type=NormType.Weight,
-                        self_attention=True, y_range=(-3., 3.), loss_func=MSELossFlat())
-
-def create_critic_learner(data, metrics):
-    # Assigning loss function for Critic and creating the critic Model
-    loss_critic = AdaptiveLoss(nn.BCEWithLogitsLoss())
-    return Learner(data, gan_critic(), metrics=metrics, loss_func=loss_critic, wd=1e-3)
-
-
-# ASSIGNING PATHS - CREATING DIRs
-path = Path('/data/')
-path_hr = path / 'raw'
+# Assigning default paths
+path = Path('AI-for-Blemish-Detection-and-Repair/data/')
+path_hr = path / 'preprocessed'
 path_lr = path / 'processed'
 path_filter = path / 'spot_dmg'
 
-# Creating image list and processing images
-itemlist = ImageList.from_folder(path_hr)
-parallel(oldMold(path_lr, path_hr, path_filter), itemlist.items)
+def accuracy_thresh_expand(y_pred:Tensor, y_true:Tensor, thresh:float=0.5, sigmoid:bool=True)->Rank0Tensor:
+    "Compute accuracy after expanding `y_true` to the size of `y_pred`."
+    if sigmoid: y_pred = y_pred.sigmoid()
+    return ((y_pred>thresh)==y_true[:,None].expand_as(y_pred).bool()).float().mean()
 
-# Loading and splitting dataset into Train and Validation sets
+def create_dmg(path_hr, path_lr, newdmg = False):
+    if len(os.listdir(path_lr)) < 0 or newdmg == True:
+        itemlist = ImageList.from_folder(path_hr)
+        parallel(oldMold(path_lr, path_hr, path_filter), itemlist.items)
+
+# Create new augmented photos if necessary then load and split
+create_dmg(path_hr, path_lr)
 src = ImageImageList.from_folder(path_lr).split_by_rand_pct(0.1, seed=42)
+
 bs, size = 64, 64
 
 # Creating Databunch and Generative Learner
-data_gen = get_data(bs, size)
-model_gen = create_gen_learner()
+data_gen = get_data(bs, size, src, path_hr)
+model_gen = create_gen_learner(data_gen)
 
 # Pretraining and saving U-Net generator
-model_gen.fit_one_cycle(2, pct_start=0.8)
+model_gen.fit_one_cycle(2, pct_start=0.8) #2
 model_gen.unfreeze()
-model_gen.fit_one_cycle(6, slice(1e-6, 1e-3))
+model_gen.fit_one_cycle(10, slice(1e-6, 1e-3)) #10
 # Use .show_results(rows=int) to view results
 
-# Saving Weights
-model_gen.save('gen-pre1')
+model_gen.save('gen-pre-cp1')
 
-# Create Location for Predictions
+# Create Location for Predictions and save gen predictions
 gen_file_loc = 'generated_images'
 path_gen = path / gen_file_loc
 path_gen.mkdir(exist_ok=True)
+save_preds(model_gen, path_gen, data_gen.fix_dl)
 
-# Saving Generator Predictions
-save_preds(data_gen.fix_dl)
 model_gen = None
 gc.collect()
 
-# Creating Databunch for Critic and creating Critic as a binary classifier
-data_crit = get_crit_data([gen_file_loc, 'images'], bs=bs, size=size)
+# Create Databunch for Critic and create binary classifier Critic
+data_crit = get_crit_data([gen_file_loc, 'preprocessed'], bs=bs, size=size, path=path)
 model_critic = create_critic_learner(data_crit, accuracy_thresh_expand)
 
 # Pretraining and Saving Critic
 model_critic.fit_one_cycle(6, 1e-3)
-model_critic.save('critic-pre1')
+model_critic.save('critic-pre-cp1')
+
 model_crit = None
 model_gen = None
 gc.collect()
 
-
 #Assembling GAN
-model_crit = create_critic_learner(data_crit, metrics=None).load('critic-pre1')
-data_crit = get_crit_data(['damaged', 'images'], bs=bs, size=size)
-model_gen = create_gen_learner().load('gen-pre1')
+model_crit = create_critic_learner(data_crit, metrics=None).load('critic-pre-cp1')
+data_crit = get_crit_data(['damaged', 'preprocessed'], bs=bs, size=size, path=path)
+model_gen = create_gen_learner(data_gen).load('gen-pre-cp1')
 switcher = partial(AdaptiveGANSwitcher, critic_thresh=0.65)
 learn = GANLearner.from_learners(model_gen, model_crit, weights_gen=(1., 50.), show_img=False, switcher=switcher,
                                  opt_func=partial(optim.Adam, betas=(0., 0.99)), wd=1e-3)
 learn.callback_fns.append(partial(GANDiscriminativeLR, mult_lr=5.))
 
-
 lr = 1e-4
 learn.fit(30, lr)
-learn.save('gan-checkpoint-cp1')
+learn.save('gan-cp1')
 
-learn.data = get_data(8, 256)
+learn.data = get_data(8, 256, src, path_hr)
 learn.fit(10, lr / 2)
-# USE .show_results(rows=3) to view results from training
-learn.save('gan-checkpoint-cp2')
+learn.save('gan-cp2')
+# USE .show_results(rows=int) to view results from training
