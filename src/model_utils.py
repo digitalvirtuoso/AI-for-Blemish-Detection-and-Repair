@@ -2,11 +2,6 @@ import fastai
 from fastai.vision import *
 from fastai.callbacks import *
 from fastai.vision.gan import *
-from PIL import Image, ImageDraw, ImageFont
-import matplotlib.pyplot as plt
-import os
-import random as rand
-from pathlib import Path
 
 def checkpt(ep, lr, model, interval, mod_name='Model_'):
     cpi = round(ep / interval)
@@ -14,7 +9,7 @@ def checkpt(ep, lr, model, interval, mod_name='Model_'):
         model.fit(interval, lr)
         model.save(mod_name + str(z+1))
 
-# The Following functions are from: https://tinyurl.com/yybfbbg4
+# The Following functions are inspired from: https://tinyurl.com/yybfbbg4
 def get_data(bs, size, src, path_hr):
     data = (src.label_from_func(lambda x: path_hr / x.name)
             .transform(get_transforms(max_zoom=2.), size=size, tfm_y=True)
@@ -22,7 +17,7 @@ def get_data(bs, size, src, path_hr):
     data.c = 3
     return data
 
-def get_crit_data(classes, bs, size):
+def get_crit_data(classes, bs, size, path):
     src = ImageList.from_folder(path, include=classes).split_by_rand_pct(0.1, seed=42)
     ll = src.label_from_folder(classes=classes)
     data = (ll.transform(get_transforms(max_zoom=2.), size=size)
@@ -30,11 +25,11 @@ def get_crit_data(classes, bs, size):
     data.c = 3
     return data
 
-def save_preds(dl):
+def save_preds(model_gen, path_gen, dl):
     i = 0
     names = dl.dataset.items
     for b in dl:
-        preds = learn_gen.pred_batch(batch=b, reconstruct=True)
+        preds = model_gen.pred_batch(batch=b, reconstruct=True)
         for o in preds:
             o.save(path_gen / names[i].name)
             i += 1
@@ -47,4 +42,6 @@ def create_gen_learner(data_gen, pretrain=True):
                         self_attention=True, y_range=(-3., 3.), loss_func=MSELossFlat())
 
 def create_critic_learner(data, metrics):
+    # Assigning loss function for Critic and creating the critic Model
+    loss_critic = AdaptiveLoss(nn.BCEWithLogitsLoss())
     return Learner(data, gan_critic(), metrics=metrics, loss_func=loss_critic, wd=1e-3)
