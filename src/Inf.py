@@ -4,7 +4,7 @@ from pathlib import Path
 from model_utils import get_data
 from model_utils import create_gen_learner
 
-path = Path('AI-for-Blemish-Detection-and-Repair/data/')
+path = Path('../data/')
 path_hr = path / 'preprocessed'
 path_lr = path / 'processed'
 path_test = path / 'test_imgs'
