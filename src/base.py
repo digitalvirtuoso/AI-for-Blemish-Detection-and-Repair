@@ -19,8 +19,10 @@ def accuracy_thresh_expand(y_pred:Tensor, y_true:Tensor, thresh:float=0.5, sigmo
     return ((y_pred>thresh)==y_true[:,None].expand_as(y_pred).bool()).float().mean()
 
 def create_dmg(path_hr, path_lr, newdmg = False):
-    try: os.remove(path_lr/'processed.txt')
-    except: FileNotFoundError
+    try:
+        os.remove(path_lr/'processed.txt')
+    except:
+        FileNotFoundError
     if len(os.listdir(path_lr)) == 0 or newdmg == True:
         itemlist = ImageList.from_folder(path_hr)
         parallel(oldMold(path_lr, path_hr, path_filter), itemlist.items)
