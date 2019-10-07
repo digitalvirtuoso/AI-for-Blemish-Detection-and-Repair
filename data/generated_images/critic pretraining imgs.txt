@@ -1,0 +1,1 @@
+generated_images - Images saved from the model generator to pre-train the Critic
