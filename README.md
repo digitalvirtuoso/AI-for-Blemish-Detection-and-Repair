@@ -8,15 +8,7 @@ ML modeling for cleaning old photos without masking. This was made to train to c
 
 - **src** : All source code for production within structured directory
 
-- **data** :  Contains the following folders to train and validate model
- 
-	**raw** - Unprocessed raw sample images
-	**preprocessed** - Directory for RGB black and white images ready ingest into the model
-	**processed** - Directory for augmented files from the model
-	**spot_dmg** - Damage template files
-	**generated_images** - Images saved from the model generator to pre-train the Critic
-	**test_imgs** - Folder for files to inference
-
+- **data** :  Contains the following small sample data to train and validate model
 
 ## Requisites
 
