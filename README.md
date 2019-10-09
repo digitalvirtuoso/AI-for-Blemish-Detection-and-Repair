@@ -10,26 +10,21 @@ ML modeling for cleaning old photos without masking. This was made to train to c
 
 - **data** :  Contains the following small sample data to train and validate model
 
-## Requisites
 
-  
-#### Dependencies
-
-- [fastai]
-
-- [Streamlit]
-
-- [PIL]
-
-  
-
-#### Installation
+## Environment Installation
 
 The following setup instructions is for if you want to clone the repo to run locally:
 
-conda install -c fastai fastai
+```
+conda create --name myenv --file evironment.txt
+conda activate myenv
+```
 
+To get the streamlit to run, it will require a pip install:
+
+```
 pip install streamlit
+```
 
   
 
