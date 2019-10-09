@@ -15,13 +15,13 @@ ML modeling for cleaning old photos without masking. This was made to train to c
 
 The following setup instructions is for if you want to clone the repo to run locally:
 
+Set up conda environment with environment.txt:
 ```
-conda create --name myenv --file evironment.txt
+conda create --name myenv --file environment.txt
 conda activate myenv
 ```
 
-To get the streamlit to run, it will require a pip install:
-
+To get streamlit to run, it will require a pip install:
 ```
 pip install streamlit
 ```
