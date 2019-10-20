@@ -9,13 +9,12 @@ from model_utils import get_data, create_gen_learner
 
 # Loading Paths for Model Load
 path = Path('') # Path to data folder to load your model
-path_hr = path / '' # Path to undamaged files
-path_lr = path / '' # Path to damaged files
+path_lr = path / '' # Path to model weights
 
 # Loading Paths to Inference
 path_t = Path('') # Path to undamaged files
 dmgpath = Path('') # Path to damage templates
-inf_path = Path('') # Directory for inferencing
+inf_path = Path('') # Directory for files to be inferenced
 
 # Creating gen and Loading saved Weights
 src = ImageImageList.from_folder(path_lr).split_by_rand_pct(0.1, seed=42)
@@ -23,8 +22,10 @@ data_gen = get_data(1, 500, src, path_lr)
 learn_gen = create_gen_learner(data_gen).load('') # LOAD MODEL HERE
 test_list = ImageList.from_folder(inf_path)
 
-# Starting Streamlit App with headline
-st.markdown('**ML for Photo Repair**')
+# Starting Streamlit App
+st.markdown('# **ML for Photo Repair**')
+st.markdown('### Choose an Image and Damage Template:')
+st.markdown('Click **Generate** to Create a damaged photo')
 names = []
 for filename in (os.listdir(path_t)):
     if '.png' in filename:
@@ -91,17 +92,14 @@ if st.button('Generate Damaged Photo'):
 
     dmgSingle(path_t/option, dmgpath/dmgopt)
     selimg = PIL.Image.open(inf_path/'selected.png')
-    st.image(selimg, caption='Ready to Inference', width=300)
+    st.image(selimg, caption='Damaged Image', width=300)
 
 # Calling inference on the given file
-if st.button('Inference'):
+if st.button('Model Inference'):
     infimg = learn_gen.predict(test_list[0])[0]
     infimg.save(inf_path/'inf.png')
-    
     userdmg = PIL.Image.open(inf_path/'selected.png')
     userinf = PIL.Image.open(inf_path/'inf.png')
     names_inf = [userdmg, userinf]
-    
     st.image(names_inf, width=300)
-else:
-    pass
+
