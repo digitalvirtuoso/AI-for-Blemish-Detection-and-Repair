@@ -10,6 +10,7 @@ ML modeling for cleaning old photos without masking. This was made to train to c
 
 - **data** :  Contains a small sample set of data from [Flickr Faces HQ](https://github.com/NVlabs/ffhq-dataset) to train and validate model
 
+*Note: To train and validate model on sample set data, batchsize needs to change from 64 to 5 in base.py*
 
 ## Environment Installation
 
