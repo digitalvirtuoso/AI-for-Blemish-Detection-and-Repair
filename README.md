@@ -33,10 +33,10 @@ pip install streamlit
 
 *Note: Remove all sample data when using a new dataset*
 
-## Run Inference
+## Model Inference
 
-- Utilize inf.py in src to run inference on images:
+- Utilize inf.py in src to run model inference on images:
 - Find the commented out section to input model weights
-- Place images into designated folders and run inference on the images!
+- Place images to be inferenced into the test_imgs folder
 - Standard inference time is 2 seconds for GPU and 7 seconds on CPU
 
