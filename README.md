@@ -8,7 +8,7 @@ ML modeling for cleaning old photos without masking. This was made to train to c
 
 - **src** : All source code for production within structured directory
 
-- **data** :  Contains the following small sample data to train and validate model
+- **data** :  Contains a small sample set of data from [Flickr Faces HQ](https://github.com/NVlabs/ffhq-dataset) to train and validate model
 
 
 ## Environment Installation
@@ -26,11 +26,16 @@ To get streamlit to run, it will require a pip install:
 pip install streamlit
 ```
 
-  
+## Model Training
+- Place unprocessed data into the raw folder and run raw_prep.py to preprocess the data
+- Once the data is preprocessed train the model by running base.py
+
+*Note: Remove all sample data when using a new dataset*
 
 ## Run Inference
 
-- Utilize the inf file in src to run inference on a single image:
-- Find the commented out section to input your model weights, and input them there
-- Place images into designated folders and run inference on your image!
+- Utilize inf.py in src to run inference on images:
+- Find the commented out section to input model weights
+- Place images into designated folders and run inference on the images!
 - Standard inference time is 2 seconds for GPU and 7 seconds on CPU
+
